@@ -1,48 +1,22 @@
-import { useState, useEffect, useCallback } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { useSession } from '@/hooks/useSession'
 import { getAccountSettings } from '@/lib/localStorage'
 import { calculateParticipantTotal, allocationCost } from '@/lib/allocation'
-import { callFunction } from '@/lib/api'
 import QrCode from '@/components/QrCode'
 import PaymentSummary from '@/components/PaymentSummary'
 import Button from '@/components/ui/Button'
-import Spinner from '@/components/ui/Spinner'
+
+function stripDiacritics(s: string) {
+  return s.normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^A-Z0-9 \-]/g, '')
+}
 
 export default function PaymentPage() {
   const { id, participantId } = useParams<{ id: string; participantId: string }>()
   const navigate = useNavigate()
   const { session } = useSession(id)
-  const [paymentMsg, setPaymentMsg] = useState('')
-  const [loadingMsg, setLoadingMsg] = useState(false)
 
   const account = getAccountSettings()
   const participant = session?.participants.find((p) => p.id === participantId)
-  const restaurantName = session?.restaurantName
-  const participantName = participant?.name
-
-  const generateDescription = useCallback(async (restaurant: string, person: string) => {
-    setLoadingMsg(true)
-    try {
-      const res = await callFunction<{ description: string }>('generate-payment-description', {
-        restaurantName: restaurant,
-        participantName: person,
-      })
-      setPaymentMsg(res.description)
-    } catch {
-      const name = person.toUpperCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '')
-      const rest = (restaurant || 'RESTAURACE').toUpperCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '')
-      setPaymentMsg(`PODIL ${name} - ${rest}`.slice(0, 60))
-    } finally {
-      setLoadingMsg(false)
-    }
-  }, [])
-
-  useEffect(() => {
-    if (restaurantName && participantName) {
-      generateDescription(restaurantName, participantName)
-    }
-  }, [restaurantName, participantName, generateDescription])
 
   if (!session || !participant) {
     return (
@@ -106,17 +80,13 @@ export default function PaymentPage() {
               Nastavit
             </button>
           </div>
-        ) : loadingMsg ? (
-          <div className="py-8">
-            <Spinner className="text-primary" />
-          </div>
         ) : (
           <QrCode
             params={{
               iban: account.iban,
               amount: total,
               currency: displayCurrency,
-              message: paymentMsg,
+              message: `${stripDiacritics((session.title || session.restaurantName || '').toUpperCase())} - ${stripDiacritics((participant.name || '').toUpperCase())}`.slice(0, 60),
               recipientName: account.holderName,
             }}
           />

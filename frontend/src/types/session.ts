@@ -29,6 +29,7 @@ export interface Session {
   id: string
   createdAt: string
   restaurantName: string
+  title: string
   status: SessionStatus
   currency: string
   exchangeRate: number | null

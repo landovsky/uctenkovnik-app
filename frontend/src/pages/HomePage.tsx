@@ -15,6 +15,7 @@ export default function HomePage() {
       id: uuid(),
       createdAt: new Date().toISOString(),
       restaurantName: '',
+      title: '',
       status: 'scanning',
       currency: 'CZK',
       exchangeRate: null,

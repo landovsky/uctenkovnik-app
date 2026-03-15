@@ -59,6 +59,21 @@ export default function SessionPage() {
   }
 
   async function handleConfirmBill() {
+    // Generate title in background (don't block)
+    if (!session!.title) {
+      callFunction<{ title: string }>('generate-payment-description', {
+        restaurantName: session!.restaurantName,
+        items: session!.items.map((i) => ({ name: i.name, originalName: i.originalName })),
+        hour: new Date().getHours(),
+      }).then((res) => update({ title: res.title })).catch(() => {
+        // Fallback: use restaurant name
+        const fallback = (session!.restaurantName || 'RESTAURACE')
+          .toUpperCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+          .replace(/[^A-Z0-9 \-]/g, '').slice(0, 40)
+        update({ title: fallback })
+      })
+    }
+
     // If non-CZK, fetch exchange rate
     if (session!.currency !== 'CZK') {
       try {
