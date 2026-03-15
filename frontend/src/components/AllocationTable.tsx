@@ -20,8 +20,6 @@ export default function AllocationTable({
       <thead>
         <tr className="text-left text-muted border-b border-gray-200">
           <th className="py-2 pr-2 font-medium">Položka</th>
-          <th className="py-2 px-2 font-medium text-center">Ks</th>
-          <th className="py-2 px-2 font-medium text-right">Cena</th>
           <th className="py-2 px-2 font-medium text-center">Moje</th>
           <th className="py-2 pl-2 font-medium text-right">Částka</th>
         </tr>

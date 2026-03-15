@@ -17,15 +17,14 @@ export default function AllocationRow({ item, allocation, available, onChange }:
   if (item.splitMode === 'quantity') {
     return (
       <tr className={`border-b border-gray-100${fullyTaken ? ' opacity-40' : ''}`}>
-        <td className="py-2 pr-2 text-sm">
-          {item.name}
+        <td className="py-2 pr-2 text-sm align-top">
+          <div>{item.name}</div>
           {item.originalName && item.originalName !== item.name && (
             <div className="text-xs text-muted">{item.originalName}</div>
           )}
+          <div className="text-xs text-muted">{item.quantity}× {item.unitPrice.toFixed(0)}</div>
         </td>
-        <td className="py-2 px-2 text-sm text-muted text-center">{item.quantity}×</td>
-        <td className="py-2 px-2 text-sm text-right">{item.unitPrice.toFixed(0)}</td>
-        <td className="py-2 px-2 w-28">
+        <td className="py-2 px-2 align-top">
           <div className="flex items-center justify-center gap-1">
             <button
               type="button"
@@ -42,7 +41,7 @@ export default function AllocationRow({ item, allocation, available, onChange }:
             >+</button>
           </div>
         </td>
-        <td className="py-2 pl-2 text-sm text-right">
+        <td className="py-2 pl-2 text-sm text-right align-top">
           {(current * item.unitPrice).toFixed(0)}
         </td>
       </tr>
@@ -52,16 +51,15 @@ export default function AllocationRow({ item, allocation, available, onChange }:
   // Percentage mode
   return (
     <tr className={`border-b border-gray-100${fullyTaken ? ' opacity-40' : ''}`}>
-      <td className="py-2 pr-2 text-sm">
-        {item.name}
+      <td className="py-2 pr-2 text-sm align-top">
+        <div>{item.name}</div>
         {item.originalName && item.originalName !== item.name && (
           <div className="text-xs text-muted">{item.originalName}</div>
         )}
+        <div className="text-xs text-muted">{item.unitPrice.toFixed(0)}</div>
       </td>
-      <td className="py-2 px-2 text-sm text-muted text-center">1×</td>
-      <td className="py-2 px-2 text-sm text-right">{item.unitPrice.toFixed(0)}</td>
-      <td className="py-2 px-2 w-32">
-        <div className="flex items-center gap-2">
+      <td className="py-2 px-2 align-top">
+        <div className="flex items-center gap-1">
           <input
             type="range"
             min={0}
@@ -72,12 +70,12 @@ export default function AllocationRow({ item, allocation, available, onChange }:
               const val = parseInt(e.target.value) || 0
               onChange(Math.min(maxValue, val))
             }}
-            className="flex-1"
+            className="flex-1 min-w-0"
           />
-          <span className="text-xs text-muted w-10 text-right">{current}%</span>
+          <span className="text-xs text-muted w-8 text-right shrink-0">{current}%</span>
         </div>
       </td>
-      <td className="py-2 pl-2 text-sm text-right">
+      <td className="py-2 pl-2 text-sm text-right align-top">
         {((current / 100) * item.unitPrice).toFixed(0)}
       </td>
     </tr>
