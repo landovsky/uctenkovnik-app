@@ -44,12 +44,12 @@ export default function PaymentSummary({
         const detail =
           a.type === 'quantity'
             ? `${a.value}× ${item.unitPrice.toFixed(0)}`
-            : `${a.value}%`
+            : a.value < 100 ? `${a.value}%` : null
 
         return (
           <div key={a.itemId} className="flex justify-between text-sm">
             <span>
-              {item.name} <span className="text-muted">({detail})</span>
+              {item.name}{detail && <span className="text-muted"> ({detail})</span>}
             </span>
             <span>{cost.toFixed(0)} {origCur}</span>
           </div>
