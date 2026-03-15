@@ -24,7 +24,8 @@ interface Props {
 export default function ReceiptScanner({ onResult }: Props) {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
-  const fileRef = useRef<HTMLInputElement>(null)
+  const cameraRef = useRef<HTMLInputElement>(null)
+  const galleryRef = useRef<HTMLInputElement>(null)
 
   async function handleFile(file: File) {
     setLoading(true)
@@ -54,18 +55,27 @@ export default function ReceiptScanner({ onResult }: Props) {
     }
   }
 
+  function onInputChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0]
+    if (file) handleFile(file)
+  }
+
   return (
     <div className="text-center">
       <input
-        ref={fileRef}
+        ref={cameraRef}
         type="file"
         accept="image/*"
         capture="environment"
         className="hidden"
-        onChange={(e) => {
-          const file = e.target.files?.[0]
-          if (file) handleFile(file)
-        }}
+        onChange={onInputChange}
+      />
+      <input
+        ref={galleryRef}
+        type="file"
+        accept="image/*"
+        className="hidden"
+        onChange={onInputChange}
       />
 
       {loading ? (
@@ -74,13 +84,13 @@ export default function ReceiptScanner({ onResult }: Props) {
           <p className="text-muted">Zpracovávám účtenku...</p>
         </div>
       ) : (
-        <div className="py-12">
-          <Button onClick={() => fileRef.current?.click()} fullWidth>
+        <div className="py-12 space-y-3">
+          <Button onClick={() => cameraRef.current?.click()} fullWidth>
             Vyfotit účtenku
           </Button>
-          <p className="text-muted text-sm mt-3">
-            nebo vyberte fotku z galerie
-          </p>
+          <Button onClick={() => galleryRef.current?.click()} fullWidth variant="secondary">
+            Vybrat z galerie
+          </Button>
         </div>
       )}
 
