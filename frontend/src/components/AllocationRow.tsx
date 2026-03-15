@@ -12,10 +12,11 @@ export default function AllocationRow({ item, allocation, available, onChange }:
   // available = item.quantity - othersClaimed (excludes current participant)
   // so available IS the max this participant can claim
   const maxValue = available
+  const fullyTaken = maxValue === 0 && current === 0
 
   if (item.splitMode === 'quantity') {
     return (
-      <tr className="border-b border-gray-100">
+      <tr className={`border-b border-gray-100${fullyTaken ? ' opacity-40' : ''}`}>
         <td className="py-2 pr-2 text-sm">
           {item.name}
           {item.originalName && item.originalName !== item.name && (
