@@ -23,8 +23,9 @@ function sanitizeField(value: string, maxLength: number): string {
  * See: https://qr-platba.cz/pro-vyvojare/specifikace-formatu/
  */
 export function buildSpdString(params: SpdParams): string {
-  const acc = params.iban.replace(/\s/g, '').toUpperCase().slice(0, SPD_LIMITS.ACC)
-  const amount = params.amount.toFixed(2).slice(0, SPD_LIMITS.AM)
+  const acc = (params.iban || '').replace(/\s/g, '').toUpperCase().slice(0, SPD_LIMITS.ACC)
+  const amt = typeof params.amount === 'number' && !isNaN(params.amount) ? params.amount : 0
+  const amount = amt.toFixed(2).slice(0, SPD_LIMITS.AM)
   const currency = params.currency.toUpperCase().slice(0, SPD_LIMITS.CC)
   const message = sanitizeField(params.message, SPD_LIMITS.MSG)
   const recipientName = sanitizeField(params.recipientName, SPD_LIMITS.RN)

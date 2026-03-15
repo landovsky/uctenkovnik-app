@@ -8,14 +8,19 @@ interface Props {
 }
 
 export default function QrCode({ params, size = 256 }: Props) {
-  const spdString = buildSpdString(params)
+  try {
+    const spdString = buildSpdString(params)
+    if (!spdString) return <p className="text-danger text-sm">Chyba při generování QR kódu</p>
 
-  return (
-    <div className="flex flex-col items-center gap-3">
-      <QRCodeSVG value={spdString} size={size} level="M" />
-      <p className="text-xs text-muted break-all max-w-xs text-center">
-        {spdString}
-      </p>
-    </div>
-  )
+    return (
+      <div className="flex flex-col items-center gap-3">
+        <QRCodeSVG value={spdString} size={size} level="M" />
+        <p className="text-xs text-muted break-all max-w-xs text-center">
+          {spdString}
+        </p>
+      </div>
+    )
+  } catch {
+    return <p className="text-danger text-sm">Chyba při generování QR kódu</p>
+  }
 }
