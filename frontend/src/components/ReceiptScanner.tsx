@@ -22,37 +22,40 @@ interface Props {
 }
 
 export default function ReceiptScanner({ onResult }: Props) {
-  const [loading, setLoading] = useState(false)
+  const [status, setStatus] = useState<string | null>(null)
   const [error, setError] = useState('')
   const cameraRef = useRef<HTMLInputElement>(null)
   const galleryRef = useRef<HTMLInputElement>(null)
 
   async function handleFile(file: File) {
-    setLoading(true)
+    setStatus('Nahrávám účtenku...')
     setError('')
 
     try {
       const base64 = await compressImage(file)
 
+      setStatus('Rozpoznávám položky...')
       const ocr = await callFunction<OcrResult>('ocr-receipt', { image: base64 })
 
       if (!ocr.fullText) {
         setError('Nepodařilo se přečíst účtenku. Zkuste lepší fotku.')
-        setLoading(false)
+        setStatus(null)
         return
       }
 
+      setStatus('Připravuji účtenku...')
       const parsed = await callFunction<ParseResult>('parse-receipt', {
         fullText: ocr.fullText,
         annotations: ocr.annotations,
       })
 
+      setStatus('Ještě chvíličku...')
       onResult({ ...parsed, receiptImage: base64 })
     } catch (e) {
       const msg = e instanceof Error ? e.message : 'Chyba při zpracování účtenky'
       setError(msg === 'Failed to fetch' ? 'Nepodařilo se odeslat fotku. Zkontrolujte připojení k internetu.' : msg)
     } finally {
-      setLoading(false)
+      setStatus(null)
     }
   }
 
@@ -79,10 +82,10 @@ export default function ReceiptScanner({ onResult }: Props) {
         onChange={onInputChange}
       />
 
-      {loading ? (
+      {status ? (
         <div className="py-12">
           <Spinner className="text-primary mb-3" />
-          <p className="text-muted">Zpracovávám účtenku...</p>
+          <p className="text-muted">{status}</p>
         </div>
       ) : (
         <div className="py-12 space-y-3">
