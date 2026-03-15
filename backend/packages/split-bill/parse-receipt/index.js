@@ -45,10 +45,16 @@ async function main(args) {
     });
 
     const userMessage = `OCR text:\n${fullText}\n\nOCR annotations (first 100):\n${JSON.stringify((annotations || []).slice(0, 100))}`;
+    const prompt = PROMPT + '\n\n' + userMessage;
 
-    const result = await model.generateContent(PROMPT + '\n\n' + userMessage);
-    const text = result.response.text();
-    const parsed = JSON.parse(text);
+    let parsed;
+    try {
+      const result = await model.generateContent(prompt);
+      parsed = JSON.parse(result.response.text());
+    } catch {
+      const result = await model.generateContent(prompt);
+      parsed = JSON.parse(result.response.text());
+    }
 
     return { statusCode: 200, body: parsed };
   } catch (err) {

@@ -24,10 +24,12 @@ interface Props {
 export default function ReceiptScanner({ onResult }: Props) {
   const [status, setStatus] = useState<string | null>(null)
   const [error, setError] = useState('')
+  const lastFileRef = useRef<File | null>(null)
   const cameraRef = useRef<HTMLInputElement>(null)
   const galleryRef = useRef<HTMLInputElement>(null)
 
   async function handleFile(file: File) {
+    lastFileRef.current = file
     setStatus('Nahrávám účtenku...')
     setError('')
 
@@ -98,7 +100,19 @@ export default function ReceiptScanner({ onResult }: Props) {
         </div>
       )}
 
-      {error && <p className="text-danger text-sm mt-4">{error}</p>}
+      {error && (
+        <div className="mt-4">
+          <p className="text-danger text-sm">{error}</p>
+          {lastFileRef.current && (
+            <button
+              onClick={() => lastFileRef.current && handleFile(lastFileRef.current)}
+              className="text-primary text-sm mt-2"
+            >
+              Zkusit znovu
+            </button>
+          )}
+        </div>
+      )}
     </div>
   )
 }

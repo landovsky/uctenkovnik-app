@@ -10,6 +10,22 @@ function createVisionClient(env) {
   return new vision.ImageAnnotatorClient({ credentials });
 }
 
+async function ocr(client, image) {
+  const request = {
+    image: { content: image },
+    features: [{ type: 'DOCUMENT_TEXT_DETECTION' }],
+  };
+
+  const [result] = await client.annotateImage(request);
+  const fullText = result?.fullTextAnnotation?.text || '';
+  const annotations = (result?.textAnnotations || []).slice(1).map((a) => ({
+    text: a.description,
+    boundingBox: a.boundingPoly?.vertices || [],
+  }));
+
+  return { fullText, annotations };
+}
+
 async function main(args) {
   try {
     const { image } = args;
@@ -18,27 +34,17 @@ async function main(args) {
     }
 
     const client = createVisionClient(args);
-    const request = {
-      image: { content: image },
-      features: [{ type: 'DOCUMENT_TEXT_DETECTION' }],
-    };
 
-    const [result] = await client.annotateImage(request);
-    const fullText = result.fullTextAnnotation?.text || '';
-    const annotations = (result.textAnnotations || []).slice(1).map((a) => ({
-      text: a.description,
-      boundingBox: a.boundingPoly?.vertices || [],
-    }));
+    let result;
+    try {
+      result = await ocr(client, image);
+    } catch {
+      result = await ocr(client, image);
+    }
 
-    return {
-      statusCode: 200,
-      body: { fullText, annotations },
-    };
+    return { statusCode: 200, body: result };
   } catch (err) {
-    return {
-      statusCode: 500,
-      body: { error: err.message },
-    };
+    return { statusCode: 500, body: { error: err.message } };
   }
 }
 
