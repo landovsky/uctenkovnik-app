@@ -11,7 +11,7 @@ const DIACRITICS_MAP: Record<string, string> = {
 }
 
 export function transliterate(text: string): string {
-  return text.replace(/[^\x00-\x7F]/g, (ch) => DIACRITICS_MAP[ch] ?? '')
+  return text.replace(/[^\u0000-\u007F]/g, (ch) => DIACRITICS_MAP[ch] ?? '')
 }
 
 function sanitizeField(value: string, maxLength: number): string {

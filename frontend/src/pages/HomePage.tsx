@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { v4 as uuid } from 'uuid'
 import type { Session } from '@/types/session'
@@ -7,6 +8,7 @@ import Button from '@/components/ui/Button'
 
 export default function HomePage() {
   const navigate = useNavigate()
+  const [sessions, setSessions] = useState(() => getSessions())
 
   function handleNewSession() {
     const session: Session = {
@@ -29,7 +31,9 @@ export default function HomePage() {
     navigate(`/ucet/${session.id}`)
   }
 
-  const sessions = getSessions()
+  function handleDelete(id: string) {
+    setSessions((prev) => prev.filter((s) => s.id !== id))
+  }
 
   return (
     <div>
@@ -47,7 +51,7 @@ export default function HomePage() {
         Nový účet
       </Button>
 
-      <SessionList sessions={sessions} />
+      <SessionList sessions={sessions} onDelete={handleDelete} />
     </div>
   )
 }

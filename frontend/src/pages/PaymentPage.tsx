@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { useSession } from '@/hooks/useSession'
 import { getAccountSettings } from '@/lib/localStorage'
@@ -18,24 +18,31 @@ export default function PaymentPage() {
 
   const account = getAccountSettings()
   const participant = session?.participants.find((p) => p.id === participantId)
+  const restaurantName = session?.restaurantName
+  const participantName = participant?.name
+
+  const generateDescription = useCallback(async (restaurant: string, person: string) => {
+    setLoadingMsg(true)
+    try {
+      const res = await callFunction<{ description: string }>('generate-payment-description', {
+        restaurantName: restaurant,
+        participantName: person,
+      })
+      setPaymentMsg(res.description)
+    } catch {
+      const name = person.toUpperCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+      const rest = (restaurant || 'RESTAURACE').toUpperCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+      setPaymentMsg(`PODIL ${name} - ${rest}`.slice(0, 60))
+    } finally {
+      setLoadingMsg(false)
+    }
+  }, [])
 
   useEffect(() => {
-    if (!session?.restaurantName || !participant?.name) return
-
-    setLoadingMsg(true)
-    callFunction<{ description: string }>('generate-payment-description', {
-      restaurantName: session.restaurantName,
-      participantName: participant.name,
-    })
-      .then((res) => setPaymentMsg(res.description))
-      .catch(() => {
-        // Fallback: generate a simple description locally
-        const name = participant.name.toUpperCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '')
-        const restaurant = (session.restaurantName || 'RESTAURACE').toUpperCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '')
-        setPaymentMsg(`PODIL ${name} - ${restaurant}`.slice(0, 60))
-      })
-      .finally(() => setLoadingMsg(false))
-  }, [session?.restaurantName, participant?.name])
+    if (restaurantName && participantName) {
+      generateDescription(restaurantName, participantName)
+    }
+  }, [restaurantName, participantName, generateDescription])
 
   if (!session || !participant) {
     return (
@@ -57,7 +64,6 @@ export default function PaymentPage() {
     session.exchangeRate,
   )
 
-  // Calculate tip share for display
   const myAllocations = session.allocations.filter((a) => a.participantId === participantId)
   const itemsMap = new Map(session.items.map((i) => [i.id, i]))
   const subtotal = myAllocations.reduce((s, a) => {

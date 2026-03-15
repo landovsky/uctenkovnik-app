@@ -1,0 +1,31 @@
+{
+  "fullText": "Restaurace U Zlaté Konvice\nPraha 1, Melantrichova 20\nIČO: 12345678\nDIČ: CZ12345678\n\n1x Svíčková na smetaně    189\n2x Plzeň 0.5l              98\n1x Smažený sýr            149\n1x Tiramisu                 89\n1x Espresso                 59\n\nMezisoučet:               584\nDPH 15%:                   88\nCelkem:                   584 CZK\n\nDěkujeme za návštěvu!",
+  "annotations": [
+    { "text": "Restaurace", "boundingBox": [{"x": 50, "y": 10}] },
+    { "text": "U", "boundingBox": [{"x": 160, "y": 10}] },
+    { "text": "Zlaté", "boundingBox": [{"x": 180, "y": 10}] },
+    { "text": "Konvice", "boundingBox": [{"x": 230, "y": 10}] },
+    { "text": "1x", "boundingBox": [{"x": 50, "y": 100}] },
+    { "text": "Svíčková", "boundingBox": [{"x": 80, "y": 100}] },
+    { "text": "na", "boundingBox": [{"x": 160, "y": 100}] },
+    { "text": "smetaně", "boundingBox": [{"x": 180, "y": 100}] },
+    { "text": "189", "boundingBox": [{"x": 350, "y": 100}] },
+    { "text": "2x", "boundingBox": [{"x": 50, "y": 130}] },
+    { "text": "Plzeň", "boundingBox": [{"x": 80, "y": 130}] },
+    { "text": "0.5l", "boundingBox": [{"x": 140, "y": 130}] },
+    { "text": "98", "boundingBox": [{"x": 350, "y": 130}] },
+    { "text": "1x", "boundingBox": [{"x": 50, "y": 160}] },
+    { "text": "Smažený", "boundingBox": [{"x": 80, "y": 160}] },
+    { "text": "sýr", "boundingBox": [{"x": 160, "y": 160}] },
+    { "text": "149", "boundingBox": [{"x": 350, "y": 160}] },
+    { "text": "1x", "boundingBox": [{"x": 50, "y": 190}] },
+    { "text": "Tiramisu", "boundingBox": [{"x": 80, "y": 190}] },
+    { "text": "89", "boundingBox": [{"x": 350, "y": 190}] },
+    { "text": "1x", "boundingBox": [{"x": 50, "y": 220}] },
+    { "text": "Espresso", "boundingBox": [{"x": 80, "y": 220}] },
+    { "text": "59", "boundingBox": [{"x": 350, "y": 220}] },
+    { "text": "Celkem:", "boundingBox": [{"x": 50, "y": 280}] },
+    { "text": "584", "boundingBox": [{"x": 350, "y": 280}] },
+    { "text": "CZK", "boundingBox": [{"x": 380, "y": 280}] }
+  ]
+}

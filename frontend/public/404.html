@@ -1,0 +1,14 @@
+<!doctype html>
+<html lang="cs">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Účtenkovník</title>
+    <script>
+      // SPA redirect for GitHub Pages: store the path and redirect to root
+      // so BrowserRouter can handle the route on load
+      sessionStorage.setItem('spa-redirect', location.pathname + location.search + location.hash);
+      location.replace('/');
+    </script>
+  </head>
+  <body></body>
+</html>
