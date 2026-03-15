@@ -2,14 +2,6 @@ const CNB_URL = 'https://www.cnb.cz/cs/financni-trhy/devizovy-trh/kurzy-devizove
 
 let cache = { data: null, date: null };
 
-function getCorsHeaders(env) {
-  return {
-    'Access-Control-Allow-Origin': env.CORS_ORIGIN || '*',
-    'Access-Control-Allow-Methods': 'POST, OPTIONS',
-    'Access-Control-Allow-Headers': 'Content-Type',
-  };
-}
-
 function parseCnbRates(text) {
   const lines = text.trim().split('\n');
   // Line 0: date header, Line 1: column headers, Line 2+: data
@@ -31,16 +23,10 @@ function parseCnbRates(text) {
 }
 
 async function main(args) {
-  const headers = getCorsHeaders(args);
-
-  if (args.__ow_method === 'options') {
-    return { statusCode: 204, headers };
-  }
-
   try {
     const { currency } = args;
     if (!currency) {
-      return { statusCode: 400, headers, body: { error: 'Missing currency parameter' } };
+      return { statusCode: 400, body: { error: 'Missing currency parameter' } };
     }
 
     const code = currency.toUpperCase();
@@ -54,16 +40,15 @@ async function main(args) {
 
     const rate = cache.data.rates[code];
     if (!rate) {
-      return { statusCode: 404, headers, body: { error: `Currency ${code} not found` } };
+      return { statusCode: 404, body: { error: `Currency ${code} not found` } };
     }
 
     return {
       statusCode: 200,
-      headers,
       body: { rate, date: cache.data.date, currency: code },
     };
   } catch (err) {
-    return { statusCode: 500, headers, body: { error: err.message } };
+    return { statusCode: 500, body: { error: err.message } };
   }
 }
 

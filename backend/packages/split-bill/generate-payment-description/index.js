@@ -1,12 +1,4 @@
-const { VertexAI } = require('@google-cloud/vertexai');
-
-function getCorsHeaders(env) {
-  return {
-    'Access-Control-Allow-Origin': env.CORS_ORIGIN || '*',
-    'Access-Control-Allow-Methods': 'POST, OPTIONS',
-    'Access-Control-Allow-Headers': 'Content-Type',
-  };
-}
+const { GoogleGenerativeAI } = require('@google/generative-ai');
 
 const PROMPT = `Vygeneruj krátký popis platby pro QR kód bankovního převodu.
 
@@ -21,46 +13,28 @@ Příklady:
 - "OBED U FRANTISKA - ANNA"
 - "RESTAURACE MLYNEC - PODIL PETR"`;
 
-function createVertex(env) {
-  const credentials = JSON.parse(Buffer.from(env.GOOGLE_CREDENTIALS_B64, 'base64').toString());
-  return new VertexAI({
-    project: env.GOOGLE_PROJECT_ID || credentials.project_id,
-    location: env.GOOGLE_LOCATION || 'us-central1',
-    googleAuthOptions: { credentials },
-  });
-}
-
 async function main(args) {
-  const headers = getCorsHeaders(args);
-
-  if (args.__ow_method === 'options') {
-    return { statusCode: 204, headers };
-  }
-
   try {
     const { restaurantName, participantName } = args;
 
-    const vertex = createVertex(args);
-    const model = vertex.getGenerativeModel({
-      model: 'gemini-2.5-flash-preview-05-20',
+    const genAI = new GoogleGenerativeAI(args.GEMINI_API_KEY);
+    const model = genAI.getGenerativeModel({
+      model: 'gemini-3-flash-preview',
       generationConfig: { temperature: 0.3, maxOutputTokens: 100 },
     });
 
     const userMessage = `Restaurace: ${restaurantName || 'neznámá'}\nOsoba: ${participantName || 'neznámá'}`;
 
-    const result = await model.generateContent([
-      { role: 'user', parts: [{ text: PROMPT + '\n\n' + userMessage }] },
-    ]);
-
-    let description = result.response.candidates[0].content.parts[0].text.trim();
+    const result = await model.generateContent(PROMPT + '\n\n' + userMessage);
+    let description = result.response.text().trim();
     // Clean up: strip quotes, ensure uppercase ASCII only
     description = description.replace(/^["']|["']$/g, '').toUpperCase();
     description = description.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
     description = description.replace(/[^A-Z0-9 \-]/g, '').slice(0, 60);
 
-    return { statusCode: 200, headers, body: { description } };
+    return { statusCode: 200, body: { description } };
   } catch (err) {
-    return { statusCode: 500, headers, body: { error: err.message } };
+    return { statusCode: 500, body: { error: err.message } };
   }
 }
 

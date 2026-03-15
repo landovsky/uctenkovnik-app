@@ -1,12 +1,4 @@
-const { VertexAI } = require('@google-cloud/vertexai');
-
-function getCorsHeaders(env) {
-  return {
-    'Access-Control-Allow-Origin': env.CORS_ORIGIN || '*',
-    'Access-Control-Allow-Methods': 'POST, OPTIONS',
-    'Access-Control-Allow-Headers': 'Content-Type',
-  };
-}
+const { GoogleGenerativeAI } = require('@google/generative-ai');
 
 const PROMPT = `Jsi expert na analýzu účtenek z restaurací. Dostáváš OCR výstup z Google Vision API.
 
@@ -36,31 +28,16 @@ Vrať JSON ve formátu:
   "items": [{"name": "...", "originalName": "...", "quantity": 1, "unitPrice": 0, "totalPrice": 0}]
 }`;
 
-function createVertex(env) {
-  const credentials = JSON.parse(Buffer.from(env.GOOGLE_CREDENTIALS_B64, 'base64').toString());
-  return new VertexAI({
-    project: env.GOOGLE_PROJECT_ID || credentials.project_id,
-    location: env.GOOGLE_LOCATION || 'us-central1',
-    googleAuthOptions: { credentials },
-  });
-}
-
 async function main(args) {
-  const headers = getCorsHeaders(args);
-
-  if (args.__ow_method === 'options') {
-    return { statusCode: 204, headers };
-  }
-
   try {
     const { fullText, annotations } = args;
     if (!fullText) {
-      return { statusCode: 400, headers, body: { error: 'Missing fullText parameter' } };
+      return { statusCode: 400, body: { error: 'Missing fullText parameter' } };
     }
 
-    const vertex = createVertex(args);
-    const model = vertex.getGenerativeModel({
-      model: 'gemini-2.5-flash-preview-05-20',
+    const genAI = new GoogleGenerativeAI(args.GEMINI_API_KEY);
+    const model = genAI.getGenerativeModel({
+      model: 'gemini-3-flash-preview',
       generationConfig: {
         responseMimeType: 'application/json',
         temperature: 0.1,
@@ -69,17 +46,13 @@ async function main(args) {
 
     const userMessage = `OCR text:\n${fullText}\n\nOCR annotations (first 100):\n${JSON.stringify((annotations || []).slice(0, 100))}`;
 
-    const result = await model.generateContent([
-      { role: 'user', parts: [{ text: PROMPT + '\n\n' + userMessage }] },
-    ]);
-
-    const response = result.response;
-    const text = response.candidates[0].content.parts[0].text;
+    const result = await model.generateContent(PROMPT + '\n\n' + userMessage);
+    const text = result.response.text();
     const parsed = JSON.parse(text);
 
-    return { statusCode: 200, headers, body: parsed };
+    return { statusCode: 200, body: parsed };
   } catch (err) {
-    return { statusCode: 500, headers, body: { error: err.message } };
+    return { statusCode: 500, body: { error: err.message } };
   }
 }
 
