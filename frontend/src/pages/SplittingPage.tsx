@@ -1,7 +1,7 @@
 import { useState, useMemo } from 'react'
 import { useParams, useNavigate, useSearchParams } from 'react-router-dom'
 import { useSession } from '@/hooks/useSession'
-import { calculateParticipantTotal, getAvailableQuantity, getAvailablePercentage } from '@/lib/allocation'
+import { calculateParticipantTotal, getAvailableQuantity, getAvailablePercentage, allocationCost } from '@/lib/allocation'
 import ParticipantSelector from '@/components/ParticipantSelector'
 import AllocationTable from '@/components/AllocationTable'
 import TipSplitControl from '@/components/TipSplitControl'
@@ -42,6 +42,17 @@ export default function SplittingPage() {
 
   const activeParticipant = session.participants.find((p) => p.id === activeId)
   const displayCurrency = session.exchangeRate ? 'CZK' : session.currency
+
+  const tipShare = useMemo(() => {
+    if (!activeId || !session || session.tip <= 0 || session.participants.length === 0) return 0
+    if (session.tipMethod === 'equal') return session.tip / session.participants.length
+    const itemsMap = new Map(session.items.map((i) => [i.id, i]))
+    const subtotal = session.allocations
+      .filter((a) => a.participantId === activeId)
+      .reduce((s, a) => { const item = itemsMap.get(a.itemId); return item ? s + allocationCost(item, a) : s }, 0)
+    const billSubtotal = session.items.reduce((s, i) => s + i.totalPrice, 0)
+    return billSubtotal > 0 ? session.tip * (subtotal / billSubtotal) : 0
+  }, [session, activeId])
 
   function handleAllocationChange(itemId: string, value: number) {
     if (!activeId) return
@@ -128,7 +139,13 @@ export default function SplittingPage() {
                 tip={session.tip}
               />
 
-              <div className="mt-4 p-4 bg-white rounded-lg border border-gray-200">
+              <div className="mt-4 p-4 bg-white rounded-lg border border-gray-200 space-y-1">
+                {tipShare > 0 && (
+                  <div className="flex justify-between text-sm text-muted">
+                    <span>Spropitné</span>
+                    <span>{tipShare.toFixed(0)} {session.currency}</span>
+                  </div>
+                )}
                 <div className="flex justify-between items-center">
                   <span className="font-semibold">
                     {activeParticipant.name} platí
