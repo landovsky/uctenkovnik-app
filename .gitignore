@@ -4,3 +4,5 @@ dist/
 .env
 *.local
 .DS_Store
+.deployed/
+__deployer__.zip

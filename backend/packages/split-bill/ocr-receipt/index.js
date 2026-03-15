@@ -9,7 +9,7 @@ function getCorsHeaders(env) {
 }
 
 function createVisionClient(env) {
-  const credentials = JSON.parse(env.GOOGLE_CREDENTIALS);
+  const credentials = JSON.parse(Buffer.from(env.GOOGLE_CREDENTIALS_B64, 'base64').toString());
   return new vision.ImageAnnotatorClient({ credentials });
 }
 

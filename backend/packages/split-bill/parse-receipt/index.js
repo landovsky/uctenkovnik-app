@@ -37,7 +37,7 @@ Vrať JSON ve formátu:
 }`;
 
 function createVertex(env) {
-  const credentials = JSON.parse(env.GOOGLE_CREDENTIALS);
+  const credentials = JSON.parse(Buffer.from(env.GOOGLE_CREDENTIALS_B64, 'base64').toString());
   return new VertexAI({
     project: env.GOOGLE_PROJECT_ID || credentials.project_id,
     location: env.GOOGLE_LOCATION || 'us-central1',
