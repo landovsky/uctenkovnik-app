@@ -1,9 +1,10 @@
-const MAX_DIMENSION = 1600
-const JPEG_QUALITY = 0.7
+const MAX_DIMENSION = 1200
+const JPEG_QUALITY = 0.6
+const MAX_BASE64_SIZE = 950_000 // Stay under DO Functions 1MB body limit
 
 /**
- * Compresses an image file to JPEG, resizes to max 1600px on longest side,
- * and returns a base64 data string (without the data:... prefix).
+ * Compresses an image file to JPEG, resizes to fit within dimension limits,
+ * and ensures the base64 output stays under the server payload limit.
  */
 export function compressImage(file: File): Promise<string> {
   return new Promise((resolve, reject) => {
@@ -26,9 +27,24 @@ export function compressImage(file: File): Promise<string> {
       const ctx = canvas.getContext('2d')!
       ctx.drawImage(img, 0, 0, width, height)
 
-      const dataUrl = canvas.toDataURL('image/jpeg', JPEG_QUALITY)
-      // Strip the "data:image/jpeg;base64," prefix
-      const base64 = dataUrl.split(',')[1]
+      let quality = JPEG_QUALITY
+      let base64 = canvasToBase64(canvas, quality)
+
+      // Reduce quality progressively if still too large
+      while (base64.length > MAX_BASE64_SIZE && quality > 0.2) {
+        quality -= 0.1
+        base64 = canvasToBase64(canvas, quality)
+      }
+
+      // If still too large, scale down dimensions
+      if (base64.length > MAX_BASE64_SIZE) {
+        const scale = Math.sqrt(MAX_BASE64_SIZE / base64.length)
+        canvas.width = Math.round(width * scale)
+        canvas.height = Math.round(height * scale)
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height)
+        base64 = canvasToBase64(canvas, 0.5)
+      }
+
       resolve(base64)
     }
 
@@ -39,4 +55,8 @@ export function compressImage(file: File): Promise<string> {
 
     img.src = url
   })
+}
+
+function canvasToBase64(canvas: HTMLCanvasElement, quality: number): string {
+  return canvas.toDataURL('image/jpeg', quality).split(',')[1]
 }

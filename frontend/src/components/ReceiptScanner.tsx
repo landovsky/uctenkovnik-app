@@ -49,7 +49,8 @@ export default function ReceiptScanner({ onResult }: Props) {
 
       onResult({ ...parsed, receiptImage: base64 })
     } catch (e) {
-      setError(e instanceof Error ? e.message : 'Chyba při zpracování účtenky')
+      const msg = e instanceof Error ? e.message : 'Chyba při zpracování účtenky'
+      setError(msg === 'Failed to fetch' ? 'Nepodařilo se odeslat fotku. Zkontrolujte připojení k internetu.' : msg)
     } finally {
       setLoading(false)
     }
