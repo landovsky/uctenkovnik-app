@@ -12,6 +12,10 @@
   --color-surface-alt: #f3f4f6;
 }
 
+button, [role="button"], input[type="range"], a {
+  cursor: pointer;
+}
+
 body {
   margin: 0;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;

@@ -1,7 +1,7 @@
 import { useState, useMemo } from 'react'
 import { useParams, useNavigate, useSearchParams } from 'react-router-dom'
 import { useSession } from '@/hooks/useSession'
-import { calculateParticipantTotal } from '@/lib/allocation'
+import { calculateParticipantTotal, getAvailableQuantity, getAvailablePercentage } from '@/lib/allocation'
 import ParticipantSelector from '@/components/ParticipantSelector'
 import AllocationTable from '@/components/AllocationTable'
 import TipSplitControl from '@/components/TipSplitControl'
@@ -48,8 +48,14 @@ export default function SplittingPage() {
     const item = session!.items.find((i) => i.id === itemId)
     if (!item) return
 
-    // Clamp value to valid range
-    const max = item.splitMode === 'quantity' ? item.quantity : 100
+    // Clamp value: quantity minus what others already took
+    const available = item.splitMode === 'quantity'
+      ? getAvailableQuantity(item, session!.allocations, activeId)
+      : getAvailablePercentage(item, session!.allocations, activeId)
+    const currentAlloc = session!.allocations.find(
+      (a) => a.participantId === activeId && a.itemId === itemId,
+    )
+    const max = (currentAlloc?.value ?? 0) + available
     const clamped = Math.min(max, Math.max(0, value))
 
     const existing = session!.allocations.filter(
