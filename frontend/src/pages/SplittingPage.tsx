@@ -48,16 +48,20 @@ export default function SplittingPage() {
     const item = session!.items.find((i) => i.id === itemId)
     if (!item) return
 
+    // Clamp value to valid range
+    const max = item.splitMode === 'quantity' ? item.quantity : 100
+    const clamped = Math.min(max, Math.max(0, value))
+
     const existing = session!.allocations.filter(
       (a) => !(a.participantId === activeId && a.itemId === itemId),
     )
 
-    if (value > 0) {
+    if (clamped > 0) {
       existing.push({
         participantId: activeId,
         itemId,
         type: item.splitMode,
-        value,
+        value: clamped,
       })
     }
 
