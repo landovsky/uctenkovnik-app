@@ -17,17 +17,22 @@ export default function AllocationRow({ item, allocation, available, onChange }:
         <td className="py-2 pr-2 text-sm">{item.name}</td>
         <td className="py-2 px-2 text-sm text-muted text-center">{item.quantity}×</td>
         <td className="py-2 px-2 text-sm text-right">{item.unitPrice.toFixed(0)}</td>
-        <td className="py-2 px-2 w-24">
-          <input
-            type="number"
-            min={0}
-            max={maxValue}
-            value={current}
-            onChange={(e) =>
-              onChange(Math.min(maxValue, Math.max(0, parseInt(e.target.value) || 0)))
-            }
-            className="w-full text-sm text-center border border-gray-300 rounded px-2 py-1 focus:outline-none focus:ring-1 focus:ring-primary"
-          />
+        <td className="py-2 px-2 w-28">
+          <div className="flex items-center justify-center gap-1">
+            <button
+              type="button"
+              disabled={current <= 0}
+              onClick={() => onChange(current - 1)}
+              className="w-8 h-8 rounded-full border border-gray-300 text-lg font-bold flex items-center justify-center disabled:opacity-30"
+            >−</button>
+            <span className="w-8 text-sm text-center font-medium">{current}</span>
+            <button
+              type="button"
+              disabled={current >= maxValue}
+              onClick={() => onChange(current + 1)}
+              className="w-8 h-8 rounded-full border border-gray-300 text-lg font-bold flex items-center justify-center disabled:opacity-30"
+            >+</button>
+          </div>
         </td>
         <td className="py-2 pl-2 text-sm text-right">
           {(current * item.unitPrice).toFixed(0)}
@@ -47,9 +52,13 @@ export default function AllocationRow({ item, allocation, available, onChange }:
           <input
             type="range"
             min={0}
-            max={maxValue}
+            max={100}
+            step={10}
             value={current}
-            onChange={(e) => onChange(parseInt(e.target.value) || 0)}
+            onChange={(e) => {
+              const val = parseInt(e.target.value) || 0
+              onChange(Math.min(maxValue, val))
+            }}
             className="flex-1"
           />
           <span className="text-xs text-muted w-10 text-right">{current}%</span>
