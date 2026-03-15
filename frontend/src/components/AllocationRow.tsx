@@ -9,7 +9,9 @@ interface Props {
 
 export default function AllocationRow({ item, allocation, available, onChange }: Props) {
   const current = allocation?.value ?? 0
-  const maxValue = current + available
+  // available = item.quantity - othersClaimed (excludes current participant)
+  // so available IS the max this participant can claim
+  const maxValue = available
 
   if (item.splitMode === 'quantity') {
     return (

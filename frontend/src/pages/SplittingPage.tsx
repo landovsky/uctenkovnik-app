@@ -48,15 +48,11 @@ export default function SplittingPage() {
     const item = session!.items.find((i) => i.id === itemId)
     if (!item) return
 
-    // Clamp value: quantity minus what others already took
+    // available = quantity - othersClaimed (excludes active participant)
     const available = item.splitMode === 'quantity'
       ? getAvailableQuantity(item, session!.allocations, activeId)
       : getAvailablePercentage(item, session!.allocations, activeId)
-    const currentAlloc = session!.allocations.find(
-      (a) => a.participantId === activeId && a.itemId === itemId,
-    )
-    const max = (currentAlloc?.value ?? 0) + available
-    const clamped = Math.min(max, Math.max(0, value))
+    const clamped = Math.min(available, Math.max(0, value))
 
     const existing = session!.allocations.filter(
       (a) => !(a.participantId === activeId && a.itemId === itemId),
