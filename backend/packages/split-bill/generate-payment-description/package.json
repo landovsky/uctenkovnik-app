@@ -1,0 +1,8 @@
+{
+  "name": "generate-payment-description",
+  "version": "1.0.0",
+  "main": "index.js",
+  "dependencies": {
+    "@google-cloud/vertexai": "^1.0.0"
+  }
+}

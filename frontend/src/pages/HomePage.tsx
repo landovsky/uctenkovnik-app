@@ -2,6 +2,8 @@ import { useNavigate } from 'react-router-dom'
 import { v4 as uuid } from 'uuid'
 import type { Session } from '@/types/session'
 import { saveSession, getSessions } from '@/lib/localStorage'
+import SessionList from '@/components/SessionList'
+import Button from '@/components/ui/Button'
 
 export default function HomePage() {
   const navigate = useNavigate()
@@ -41,34 +43,11 @@ export default function HomePage() {
         </button>
       </div>
 
-      <button
-        onClick={handleNewSession}
-        className="w-full bg-primary text-white py-3 rounded-lg font-medium hover:bg-primary-hover transition-colors mb-8"
-      >
+      <Button onClick={handleNewSession} fullWidth className="mb-8 py-3">
         Nový účet
-      </button>
+      </Button>
 
-      {sessions.length > 0 && (
-        <div>
-          <h2 className="text-lg font-semibold mb-3">Historie</h2>
-          <div className="space-y-2">
-            {sessions.map((s) => (
-              <button
-                key={s.id}
-                onClick={() => navigate(`/ucet/${s.id}`)}
-                className="w-full text-left p-3 bg-white rounded-lg border border-gray-200 hover:border-primary transition-colors"
-              >
-                <div className="font-medium">
-                  {s.restaurantName || 'Nepojmenovaný účet'}
-                </div>
-                <div className="text-sm text-muted">
-                  {new Date(s.createdAt).toLocaleDateString('cs-CZ')} · {s.status}
-                </div>
-              </button>
-            ))}
-          </div>
-        </div>
-      )}
+      <SessionList sessions={sessions} />
     </div>
   )
 }

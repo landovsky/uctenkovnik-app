@@ -1,0 +1,32 @@
+packages:
+  - name: split-bill
+    environment:
+      GOOGLE_CREDENTIALS: "${GOOGLE_CREDENTIALS}"
+      GOOGLE_PROJECT_ID: "${GOOGLE_PROJECT_ID}"
+      GOOGLE_LOCATION: "${GOOGLE_LOCATION}"
+      CORS_ORIGIN: "${CORS_ORIGIN}"
+    functions:
+      - name: ocr-receipt
+        runtime: nodejs:22
+        web: true
+        limits:
+          timeout: 30000
+          memory: 256
+      - name: parse-receipt
+        runtime: nodejs:22
+        web: true
+        limits:
+          timeout: 60000
+          memory: 256
+      - name: generate-payment-description
+        runtime: nodejs:22
+        web: true
+        limits:
+          timeout: 15000
+          memory: 128
+      - name: exchange-rate
+        runtime: nodejs:22
+        web: true
+        limits:
+          timeout: 10000
+          memory: 128
