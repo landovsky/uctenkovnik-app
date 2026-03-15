@@ -94,6 +94,8 @@ export default function PaymentPage() {
         tipShare={tipShare}
         total={total}
         currency={displayCurrency}
+        originalCurrency={session.currency}
+        exchangeRate={session.exchangeRate}
       />
 
       <div className="mt-6 flex justify-center">
