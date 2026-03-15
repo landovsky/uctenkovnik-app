@@ -51,8 +51,13 @@ export default function AllocationRow({ item, allocation, available, onChange }:
 
   // Percentage mode
   return (
-    <tr className="border-b border-gray-100">
-      <td className="py-2 pr-2 text-sm">{item.name}</td>
+    <tr className={`border-b border-gray-100${fullyTaken ? ' opacity-40' : ''}`}>
+      <td className="py-2 pr-2 text-sm">
+        {item.name}
+        {item.originalName && item.originalName !== item.name && (
+          <div className="text-xs text-muted">{item.originalName}</div>
+        )}
+      </td>
       <td className="py-2 px-2 text-sm text-muted text-center">1×</td>
       <td className="py-2 px-2 text-sm text-right">{item.unitPrice.toFixed(0)}</td>
       <td className="py-2 px-2 w-32">
