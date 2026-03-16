@@ -111,9 +111,9 @@ export default function SessionPage() {
       {!account && session.status === 'scanning' && (
         <div className="bg-warning/10 text-warning text-sm rounded-lg p-3 mb-4">
           <button onClick={() => navigate('/nastaveni')} className="underline">
-            Nastavte IBAN
+            Nastavte si číslo účtu
           </button>{' '}
-          pro generování QR kódů.
+          pro generování platebních QR kódů.
         </div>
       )}
 
